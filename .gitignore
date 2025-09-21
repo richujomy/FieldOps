@@ -1,0 +1,30 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.swp
+*.swo
+*.egg-info/
+*.egg
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+
+# Django specific
+*.log
+*.pot
+*.py[cod]
+db.sqlite3    # If using SQLite; ignore DB
+/media        # Uploaded files (optional, if you store them locally)
+*.mo
+*.coverage
+
+# Migrations
+**/migrations/*.pyc
+**/migrations/*.py~   # temp files
+**/migrations/__pycache__/
+**/migrations/*.py    # Optional: you might keep initial __init__.py
