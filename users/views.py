@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.contrib.auth import authenticate
+# from drf_spectacular.utils import extend_schema, extend_schema_view
 from .models import User
 from .serializers import (
     UserRegistrationSerializer, 

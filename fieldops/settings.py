@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_spectacular",
+    "drf_yasg",
     "users",
     "requests",
     "tasks",
@@ -155,4 +156,14 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': False, 
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+}
+
+# Swagger/OpenAPI Configuration
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'FieldOps API',
+    'DESCRIPTION': 'Field Operations Management System API',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SCHEMA_PATH_PREFIX': '/api/',
 }
