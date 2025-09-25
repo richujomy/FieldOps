@@ -31,7 +31,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password_confirm')
         password = validated_data.pop('password')
+        role = validated_data.get('role')
         user = User.objects.create_user(password=password, **validated_data)
+        # only field worker requires approval
+        if role != 'field_worker':
+            user.is_approved = True
+            user.save(update_fields=["is_approved"])
         return user
 
 
