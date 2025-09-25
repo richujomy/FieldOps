@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "drf_spectacular",
     "drf_yasg",
+    "dashboard",
     "users",
     "service_requests",
     "tasks",
