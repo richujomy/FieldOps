@@ -11,20 +11,7 @@ from .serializers import (
     TaskStatusSerializer,
     TaskProofUploadSerializer,
 )
-
-
-class IsAdminOrAssigneeOrReadOnly(permissions.BasePermission):
-    """Admins full access. Assignee can update their task. Others read-only."""
-
-    def has_object_permission(self, request, view, obj: Task) -> bool:
-        user = request.user
-        if not user or not user.is_authenticated:
-            return False
-        if getattr(user, "is_admin", False):
-            return True
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return obj.assigned_to_id == getattr(user, 'id', None)
+from .permissions import IsAdminOrAssigneeOrReadOnly
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -52,8 +39,11 @@ class TaskViewSet(viewsets.ModelViewSet):
             return TaskProofUploadSerializer
         return TaskDetailSerializer
 
-    # Admins can create tasks and assign to workers
+    # Only admins can create tasks and assign to workers
     def perform_create(self, serializer):
+        if not getattr(self.request.user, 'is_admin', False):
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('Only admins can create tasks.')
         serializer.save()
 
     @action(detail=True, methods=['post'], url_path='set-status')
