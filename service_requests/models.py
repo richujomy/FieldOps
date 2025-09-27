@@ -22,6 +22,15 @@ class ServiceRequest(models.Model):
         on_delete=models.CASCADE,
         related_name="service_requests",
     )
+    assigned_field_worker = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assigned_service_requests",
+        limit_choices_to={'role': 'field_worker', 'is_approved': True},
+        help_text="Field worker assigned to this service request"
+    )
     description = models.TextField()
     location = models.CharField(max_length=255)
     urgency = models.CharField(

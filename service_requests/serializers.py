@@ -2,27 +2,32 @@ from rest_framework import serializers
 from .models import ServiceRequest
 
 
+
+
 class ServiceRequestListSerializer(serializers.ModelSerializer):
+    assigned_field_worker = serializers.PrimaryKeyRelatedField(read_only=True)
+    
     class Meta:
         model = ServiceRequest
         fields = (
-            'id', 'description', 'location', 'urgency', 'status',
+            'id', 'assigned_field_worker', 'description', 'location', 'urgency', 'status',
             'rating', 'created_at'
         )
-        read_only_fields = ('id', 'status', 'rating', 'created_at')
+        read_only_fields = ('id', 'assigned_field_worker', 'status', 'rating', 'created_at')
 
 
 class ServiceRequestDetailSerializer(serializers.ModelSerializer):
     customer = serializers.PrimaryKeyRelatedField(read_only=True)
+    assigned_field_worker = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = ServiceRequest
         fields = (
-            'id', 'customer', 'description', 'location', 'urgency',
+            'id', 'customer', 'assigned_field_worker', 'description', 'location', 'urgency',
             'status', 'rating', 'created_at', 'updated_at'
         )
         read_only_fields = (
-            'id', 'customer', 'status', 'rating', 'created_at', 'updated_at'
+            'id', 'customer', 'assigned_field_worker', 'status', 'rating', 'created_at', 'updated_at'
         )
 
 
@@ -51,6 +56,36 @@ class ServiceRequestRatingSerializer(serializers.ModelSerializer):
             return value
         if not 1 <= value <= 5:
             raise serializers.ValidationError('Rating must be between 1 and 5.')
+        return value
+
+
+class ServiceRequestAssignmentSerializer(serializers.ModelSerializer):
+    assigned_field_worker = serializers.IntegerField(
+        help_text="ID of the field worker to assign",
+        allow_null=True,
+        required=False
+    )
+    
+    class Meta:
+        model = ServiceRequest
+        fields = ('assigned_field_worker',)
+    
+    def validate_assigned_field_worker(self, value):
+        if value is None:
+            return value
+        
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        
+        try:
+            user = User.objects.get(id=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError('User does not exist.')
+        
+        if not user.is_field_worker:
+            raise serializers.ValidationError('User must be a field worker.')
+        if not user.is_approved:
+            raise serializers.ValidationError('Field worker must be approved.')
         return value
 
 

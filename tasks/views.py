@@ -56,7 +56,16 @@ class TaskViewSet(viewsets.ModelViewSet):
         if not getattr(request.user, 'is_admin', False) and task.assigned_to_id != request.user.id:
             return Response({'detail': 'Not allowed'}, status=status.HTTP_403_FORBIDDEN)
 
+        old_status = task.status
         serializer.save()
+        
+        # Sync service request status when task is completed
+        if task.status == 'completed' and old_status != 'completed':
+            service_request = task.service_request
+            if service_request.status != 'completed':
+                service_request.status = 'completed'
+                service_request.save()
+        
         return Response(TaskDetailSerializer(task).data)
 
     @action(detail=True, methods=['post'], url_path='upload-proof')
