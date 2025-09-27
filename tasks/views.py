@@ -56,6 +56,13 @@ class TaskViewSet(viewsets.ModelViewSet):
         if not getattr(request.user, 'is_admin', False) and task.assigned_to_id != request.user.id:
             return Response({'detail': 'Not allowed'}, status=status.HTTP_403_FORBIDDEN)
 
+        # Field workers cannot directly set status to completed - they must upload proof
+        if (not getattr(request.user, 'is_admin', False) and 
+            serializer.validated_data.get('status') == 'completed'):
+            return Response({
+                'detail': 'Field workers cannot mark tasks as completed directly. Please upload proof of completion instead.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         old_status = task.status
         serializer.save()
         
@@ -77,7 +84,23 @@ class TaskViewSet(viewsets.ModelViewSet):
 
         serializer = TaskProofUploadSerializer(task, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
+        
+        old_status = task.status
         serializer.save()
+        
+        # If field worker uploads proof, automatically mark task as completed
+        if (not getattr(request.user, 'is_admin', False) and 
+            task.status != 'completed' and 
+            (task.proof_upload or task.notes)):
+            task.status = 'completed'
+            task.save()
+            
+            # Sync service request status when task is completed
+            service_request = task.service_request
+            if service_request.status != 'completed':
+                service_request.status = 'completed'
+                service_request.save()
+        
         return Response(TaskDetailSerializer(task).data, status=status.HTTP_200_OK)
 
 from django.shortcuts import render

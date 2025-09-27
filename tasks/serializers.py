@@ -62,6 +62,6 @@ class TaskStatusSerializer(serializers.ModelSerializer):
 class TaskProofUploadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ('proof_upload',)
+        fields = ('proof_upload', 'notes')
 
 
