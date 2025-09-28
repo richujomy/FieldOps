@@ -5,6 +5,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.contrib.auth import authenticate
 # from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_yasg.utils import swagger_auto_schema
 from .models import User
 from .serializers import (
     UserRegistrationSerializer, 
@@ -32,9 +33,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 
 class UserRegistrationView(generics.CreateAPIView):
-    """
-    User registration endpoint.
-    """
+    """Register a new user (customer, field worker, or admin). Public endpoint."""
     queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
     permission_classes = [permissions.AllowAny]
@@ -54,9 +53,7 @@ class UserRegistrationView(generics.CreateAPIView):
 
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
-    """
-    User profile view (get/update own profile).
-    """
+    """Get or update your own profile. Authenticated users only."""
     serializer_class = UserProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -65,9 +62,7 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 
 
 class UserListView(generics.ListAPIView):
-    """
-    List all users (admin only).
-    """
+    """List all users. Admin only."""
     queryset = User.objects.all()
     serializer_class = UserListSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -79,12 +74,12 @@ class UserListView(generics.ListAPIView):
         return User.objects.none()
 
 
+@swagger_auto_schema(method='post', operation_summary="Approve field worker",
+                     operation_description="Admin approves a field worker account.")
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def approve_field_worker(request, user_id):
-    """
-    Approve a field worker (admin only).
-    """
+    """Admin approves a field worker account."""
     if not request.user.is_admin:
         return Response({'error': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
     
@@ -97,12 +92,12 @@ def approve_field_worker(request, user_id):
         return Response({'error': 'Field worker not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
+@swagger_auto_schema(method='post', operation_summary="Reject field worker",
+                     operation_description="Admin rejects a field worker application.")
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def reject_field_worker(request, user_id):
-    """
-    Reject a field worker (admin only).
-    """
+    """Admin rejects a field worker application."""
     if not request.user.is_admin:
         return Response({'error': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
     
@@ -115,12 +110,12 @@ def reject_field_worker(request, user_id):
         return Response({'error': 'Field worker not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
+@swagger_auto_schema(method='post', operation_summary="Toggle user active",
+                     operation_description="Admin activates or deactivates a user account.")
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def activate_user(request, user_id):
-    """
-    Activate/deactivate a user (admin only).
-    """
+    """Admin activates or deactivates a user account."""
     if not request.user.is_admin:
         return Response({'error': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
     

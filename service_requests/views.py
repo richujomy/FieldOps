@@ -10,11 +10,37 @@ from .serializers import (
     ServiceRequestRatingSerializer,
     ServiceRequestAssignmentSerializer,
 )
+from drf_yasg.utils import swagger_auto_schema
 
 
 class ServiceRequestViewSet(viewsets.ModelViewSet):
     queryset = ServiceRequest.objects.select_related("customer").all()
     permission_classes = [permissions.IsAuthenticated & IsOwnerOrAdmin]
+
+    @swagger_auto_schema(operation_summary="List service requests",
+                         operation_description="Get a list of service requests. Customers see only their own requests, field workers and admins see all requests.")
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(operation_summary="Retrieve service request",
+                         operation_description="Get details of a specific service request. Customers can only view their own requests.")
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(operation_summary="Update service request",
+                         operation_description="Update an existing service request. Only the owner or admin can update.")
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @swagger_auto_schema(operation_summary="Partially update service request",
+                         operation_description="Partially update an existing service request. Only the owner or admin can update.")
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @swagger_auto_schema(operation_summary="Delete service request",
+                         operation_description="Delete a service request. Only the owner or admin can delete.")
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
     def get_queryset(self):
         user = self.request.user
@@ -39,6 +65,8 @@ class ServiceRequestViewSet(viewsets.ModelViewSet):
             return ServiceRequestAssignmentSerializer
         return ServiceRequestDetailSerializer
 
+    @swagger_auto_schema(operation_summary="Create a service request",
+                         operation_description="Customer creates a new service request. Only customers can create service requests.")
     def perform_create(self, serializer):
         # Only customers can create service requests
         user = self.request.user
@@ -47,6 +75,8 @@ class ServiceRequestViewSet(viewsets.ModelViewSet):
             raise PermissionDenied('Only customers can create service requests.')
         serializer.save()
 
+    @swagger_auto_schema(operation_summary="Rate a completed service request",
+                         operation_description="Customer rates their own completed service request (1-5).")
     @action(detail=True, methods=['post'], url_path='rate')
     def rate(self, request, pk=None):
         # Customer can rate only their own request and only when completed
@@ -60,7 +90,8 @@ class ServiceRequestViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(ServiceRequestDetailSerializer(service_request).data)
-
+    @swagger_auto_schema(operation_summary="Assign service request to field worker",
+                         operation_description="Admin assigns a service request to a field worker. This creates a task for the field worker and updates the service request status to in_progress.")
     @action(detail=True, methods=['post'], url_path='assign')
     def assign(self, request, pk=None):
         # Only admins can assign service requests to field workers

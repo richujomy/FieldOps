@@ -8,8 +8,11 @@ from tasks.models import Task
 
 from .permissions import IsAdminUserRole
 from .serializers import AdminOverviewSerializer, WorkerSummarySerializer, CustomerSummarySerializer
+from drf_yasg.utils import swagger_auto_schema
 
 
+@swagger_auto_schema(method='get', operation_summary="Admin overview",
+                     operation_description="Admin-only: summary of users, service requests, and tasks.")
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated, IsAdminUserRole])
 def admin_overview(request):
@@ -35,6 +38,8 @@ def admin_overview(request):
 
 
 
+@swagger_auto_schema(method='get', operation_summary="Field worker summary",
+                     operation_description="Field worker-only: counts of assigned, in-progress, and completed tasks.")
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def worker_summary(request):
@@ -51,6 +56,8 @@ def worker_summary(request):
     return Response(serializer.data)
 
 
+@swagger_auto_schema(method='get', operation_summary="Customer summary",
+                     operation_description="Customer-only: counts of their service requests by status.")
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def customer_summary(request):
