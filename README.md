@@ -2,6 +2,23 @@
 
 Steps to run, test, and explore the API.
 
+## Tech Stack
+
+- **Backend Framework**: Django REST Framework
+- **Database**: SQLite3 (default Django database)
+- **Authentication**: JWT (JSON Web Tokens)
+- **API Documentation**: Swagger UI
+- **Python Version**: 3.13+
+
+## Prerequisites
+
+- Python 3.13 or higher
+- Virtual environment (recommended)
+
+## Environment Setup
+
+- Create a `.env` file in the root directory
+
 ## Install
 
 ```bash
@@ -26,41 +43,6 @@ python manage.py runserver
 - Admin: http://localhost:8000/admin/
 - API docs (Swagger UI): http://localhost:8000/api/docs/
 
-## Auth (JWT)
-
-```http
-POST /api/users/auth/register/
-POST /api/users/auth/login/
-POST /api/users/auth/refresh/
-GET  /api/users/profile/  (requires Bearer token)
-```
-
-## Core Endpoints
-
-Service Requests:
-```http
-GET  /api/service-requests/
-POST /api/service-requests/
-GET  /api/service-requests/{id}/
-PATCH/DELETE /api/service-requests/{id}/
-POST /api/service-requests/{id}/assign/
-POST /api/service-requests/{id}/rate/
-```
-
-Tasks:
-```http
-GET  /api/tasks/
-GET  /api/tasks/{id}/
-POST /api/tasks/{id}/set-status/
-POST /api/tasks/{id}/upload-proof/
-```
-
-Dashboards:
-```http
-GET /api/dashboard/admin/
-GET /api/dashboard/worker/
-GET /api/dashboard/customer/
-```
 
 ## Testing
 
