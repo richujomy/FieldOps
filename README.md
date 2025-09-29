@@ -60,4 +60,4 @@ python manage.py test dashboard.test_dashboards
 Notes:
 - Default auth is JWT: set header `Authorization: Bearer <access_token>`.
 - Media uploads saved under `media/` (see `settings.MEDIA_ROOT`).
-- Create a .env file in the root directory.
+- Used default django database (SQLite)
