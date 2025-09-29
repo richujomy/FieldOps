@@ -29,3 +29,5 @@ db.sqlite3    # If using SQLite; ignore DB
 **/migrations/*.py~   # temp files
 **/migrations/__pycache__/
 **/migrations/*.py    # Optional: you might keep initial __init__.py
+
+.env
